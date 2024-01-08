@@ -1,16 +1,9 @@
-# Use this workflow to create a patch branch and use the release workflow to release the patch once ready
+name: Release surrealdb-core
 
-name: Patch release
-
-run-name: "Patch release '${{ inputs.git-tag }}'"
+run-name: "Release surrealdb-core"
 
 on:
   workflow_dispatch:
-    inputs:
-      git-tag:
-        required: true
-        type: string
-        description: "The github tag of the release you want to patch (i.e. v1.0.0)."
 
 defaults:
   run:
@@ -20,20 +13,8 @@ permissions:
   contents: write
 
 jobs:
-  tag-check:
-    name: Tag check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Verify that the provided git_tag is a tag
-        run: git tag -l | grep -w ${{ inputs.git-tag }} || (echo "The provided git_tag '${{ inputs.git-tag }}' is not a tag" && exit 1)
-
-  patch-branch:
-    name: Create security patch branch
-    needs: [tag-check]
+  release-branch:
+    name: Publish surrealdb-core crate
     runs-on: ubuntu-latest
     steps:
       - name: Install stable toolchain
@@ -44,37 +25,17 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.git-tag }}
-
-      - name: Install a TOML parser
-        run: cargo install --force --locked --version 0.8.1 taplo-cli
+          ref: e4fbb9d94af36a4c2d8dd6b077e32096f9931401
 
       - name: Prepare patch branch
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
           set -x
 
-          # Configure git
+          cd core
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git config --add --bool push.autoSetupRemote true
-
-          # Calculate new version
-          currentVersion=$(/home/runner/.cargo/bin/taplo get -f lib/Cargo.toml "package.version")
-          major=$(echo $currentVersion | tr "." "\n" | sed -n 1p)
-          minor=$(echo $currentVersion | tr "." "\n" | sed -n 2p)
-          patch=$(echo $currentVersion | tr "." "\n" | sed -n 3p)
-          version=${major}.${minor}.$(($patch + 1))
-
-          # Bump the crate version
-          sed -i "s#^version = \".*\"#version = \"${version}\"#" Cargo.toml
-          sed -i "s#^version = \".*\"#version = \"${version}\"#" lib/Cargo.toml
-
-          # Update Cargo.lock without updating dependency versions
-          cargo check --no-default-features --features storage-mem
-
-          # Commit changes
-          git checkout -b patches/${major}.${minor}
-          git commit -am "Bump version to v${version}"
-
-      - name: Push the new branch
-        run: git push
+          git tag -a v1.1.1-surrealdb-core -m "Release surrealdb-core v1.1.1"
+          git push --tags
+          cargo publish
