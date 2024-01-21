@@ -19,6 +19,7 @@ http = ["surrealdb/http"]
 http-compression = []
 ml = ["surrealdb/ml", "surrealml-core"]
 experimental-parser = ["surrealdb/experimental-parser"]
+performance-profiler = ["dep:pprof"]
 jwks = ["surrealdb/jwks"]
 
 [workspace]
@@ -56,6 +57,7 @@ once_cell = "1.18.0"
 opentelemetry = { version = "0.19", features = ["rt-tokio"] }
 opentelemetry-otlp = { version = "0.12.0", features = ["metrics"] }
 pin-project-lite = "0.2.13"
+pprof = { version = "0.13.0", features = ["flamegraph", "prost-codec"], optional = true }
 rand = "0.8.5"
 reqwest = { version = "0.11.22", default-features = false, features = ["blocking", "gzip"] }
 rmpv = "1.0.1"
