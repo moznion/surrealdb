@@ -25,7 +25,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
         with:
-          ref: e4fbb9d94af36a4c2d8dd6b077e32096f9931401
+          ref: rushmore/core
 
       - name: Prepare patch branch
         env:
@@ -36,6 +36,6 @@ jobs:
           cd core
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git tag -a v1.1.1-surrealdb-core -m "Release surrealdb-core v1.1.1"
+          git tag -a v1.1.2-surrealdb-core -m "Release surrealdb-core v1.1.2"
           git push --tags
           cargo publish
