@@ -1,6 +1,6 @@
 name: Release surrealdb-core
 
-run-name: "Release surrealdb-core ${{ inputs.version }}"
+run-name: "Release surrealdb-core ${{ inputs.version }} from ${{ inputs.branch }}"
 
 on:
   workflow_dispatch:
@@ -9,6 +9,10 @@ on:
         required: true
         type: string
         description: "The version to realease, e.g. 1.1.3"
+      branch:
+        required: true
+        type: string
+        description: "The branch to publish from"
 
 defaults:
   run:
@@ -30,7 +34,7 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
         with:
-          ref: rushmore/core
+          ref: ${{ inputs.branch }}
 
       - name: Prepare patch branch
         env:
