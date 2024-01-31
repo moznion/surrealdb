@@ -3,7 +3,7 @@ name: Release surrealdb-core
 run-name: "Release surrealdb-core ${{ inputs.version }}"
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       version:
         required: true
